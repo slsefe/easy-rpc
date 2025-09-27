@@ -7,3 +7,9 @@
 - service-consumer: 服务消费者
 - service-provider: 服务提供者
 
+## 实现原理
+
+### common模块
+
+- 定义实体类User
+- 定义接口 UserService 和接口方法 getUser
