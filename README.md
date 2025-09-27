@@ -1,5 +1,7 @@
 # easy-rpc
 
+基于Vert.x实现一个简易的RPC框架。
+
 ## 模块介绍
 
 - common: 公共依赖
@@ -7,31 +9,35 @@
 - service-consumer: 服务消费者
 - service-provider: 服务提供者
 
-## 实现原理
+- common
+    - 定义数据模型、服务接口
+- rpc-basic模块实现简易版RPC框架，包括
+    - 动态生成服务代理类
+    - 序列化和反序列化
+    - 本地注册器
+    - HTTP请求处理器
+- service-provider：
+    - 注册提供的服务到本地注册器
+    - 启动web服务器，监听端口
+    - 实现common模块定义的服务接口
+- service-consumer
+    - 从服务代理工厂获取动态代理对象
+    - 调用动态代理对象的方法
 
-### common模块
+## 流程
 
-- 定义实体类User
-- 定义接口 UserService 和接口方法 getUser
-
-### 服务提供者
-
-- 引入common模块
-- 实现UserService接口
-- 创建启动类
-
-### 服务消费者
-
-- 引入common模块
-- 创建启动类，调用接口方法 
-
-在启动类中，服务消费者需要获取接口类的实现类，才能调用方法，使用代理的方式实现。
-- 静态代理：UserServiceProxy
-- 动态代理
-
-### RPC basic
-
-RPC框架基于Vert.x实现一个HttpServer，服务提供者引入RPC框架，启动类测试RPC框架
+1. 启动服务提供者，将服务注册到注册中心（ServiceProviderApplication类）
+2. 服务消费者，根据调用的服务、方法、参数，生成调用服务的动态代理类（ServiceConsumerApplication类）
+3. 动态代理类处理流程（ServiceProxy类） 
+   1. 构造请求体，并序列化
+   2. 从注册中心获取服务提供者的地址
+   3. 发送HTTP请求，获取响应
+   4. 封装响应，返回结果
+4. 服务提供者的处理流程（）
+   1. 反序列化请求为对象，从请求对象中获取参数
+   2. 根据服务名称从本地注册器中获取实现类
+   3. 根据反射调用方法，得到返回结果
+   4. 对返回结果封装和序列化，写入到响应
 
 ### 服务注册
 
