@@ -13,3 +13,9 @@
 
 - 定义实体类User
 - 定义接口 UserService 和接口方法 getUser
+
+### 服务提供者
+
+- 引入common模块
+- 实现UserService接口
+- 创建启动类
