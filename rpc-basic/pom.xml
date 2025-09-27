@@ -21,5 +21,11 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/io.vertx/vertx-core -->
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
+      <version>5.0.4</version>
+    </dependency>
   </dependencies>
 </project>

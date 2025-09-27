@@ -24,3 +24,8 @@
 
 - 引入common模块
 - 创建启动类，调用接口方法
+
+### RPC basic
+
+RPC框架基于Vert.x实现一个HttpServer，服务提供者引入RPC框架，启动类测试RPC框架
+
