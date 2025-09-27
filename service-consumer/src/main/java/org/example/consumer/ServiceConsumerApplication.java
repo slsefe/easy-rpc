@@ -7,8 +7,6 @@ import org.example.rpc.basic.proxy.ServiceProxyFactory;
 public class ServiceConsumerApplication {
 
     public static void main(String[] args) {
-        // 使用静态代理类
-        // UserService userService = new UserServiceProxy();
         // 从服务代理工厂获取动态代理对象
         UserService userService = ServiceProxyFactory.getProxy(UserService.class);
         User user = new User();
