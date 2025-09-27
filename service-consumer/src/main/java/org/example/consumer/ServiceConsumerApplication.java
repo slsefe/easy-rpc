@@ -6,10 +6,10 @@ import org.example.common.service.UserService;
 public class ServiceConsumerApplication {
 
     public static void main(String[] args) {
-        // todo 需要获取 UserService 的实现类对象
-        UserService userService = null;
+        // 使用静态代理类
+        UserService userService = new UserServiceProxy();
         User user = new User();
-        user.setUsername("zhangsan");
+        user.setUsername("slsefe");
         User newUser = userService.getUser(user);
         if (newUser != null) {
             System.out.println("newUser.getUsername() = " + newUser.getUsername());

@@ -1,16 +1,17 @@
 package org.example.rpc.basic.model;
 
-import jdk.jfr.DataAmount;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RpcRequest {
+public class RpcRequest implements Serializable {
     // 服务名称
     private String serviceName;
     // 方法名称
