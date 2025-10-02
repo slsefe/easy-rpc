@@ -1,9 +1,15 @@
 package org.example.rpc.basic.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 // 服务元信息
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ServiceMetaInfo {
 
     private String serviceName;
@@ -29,7 +35,10 @@ public class ServiceMetaInfo {
     }
 
     public String getServiceAddress() {
-        return String.format("%s:%s", serviceHost, servicePort);
+        if (serviceHost.contains("http")) {
+            return String.format("%s:%s", serviceHost, servicePort);
+        }
+        return String.format("http://%s:%s", serviceHost, servicePort);
     }
 }
 
