@@ -15,4 +15,6 @@ public class RpcConfig {
 
     private boolean mock = false;
 
+    private RegistryConfig registry = new RegistryConfig();
+
 }
