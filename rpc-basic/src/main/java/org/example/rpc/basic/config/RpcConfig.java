@@ -16,7 +16,7 @@ public class RpcConfig {
 
     private boolean mock = false;
 
-    private RegistryConfig registry = new RegistryConfig();
+    private RegistryConfig registryConfig = new RegistryConfig();
 
     // 序列化器
     private String serializer = SerializerKeys.JDK;
