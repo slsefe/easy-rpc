@@ -16,5 +16,12 @@ public class ServiceMetaInfo {
 
     private String serviceGroup = "default";
 
+    public String getServiceKey() {
+        return String.format("%s:%s", serviceName, serviceVersion);
+    }
+
+    public String getServiceNodeKey() {
+        return String.format("%s/%s:%s", getServiceKey(), serviceHost, servicePort);
+    }
 }
 
