@@ -1,6 +1,7 @@
 package org.example.rpc.basic.config;
 
 import lombok.Data;
+import org.example.rpc.basic.serializer.SerializerKeys;
 
 // RPC框架配置
 @Data
@@ -16,5 +17,8 @@ public class RpcConfig {
     private boolean mock = false;
 
     private RegistryConfig registry = new RegistryConfig();
+
+    // 序列化器
+    private String serializer = SerializerKeys.JDK;
 
 }
