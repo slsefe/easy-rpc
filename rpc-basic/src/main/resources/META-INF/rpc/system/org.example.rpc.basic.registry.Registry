@@ -1,0 +1,1 @@
+etcd=org.example.rpc.basic.registry.EtcdRegistry
