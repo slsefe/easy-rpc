@@ -1,6 +1,7 @@
 package org.example.rpc.basic.registry;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
 import cn.hutool.json.JSONUtil;
@@ -29,6 +30,8 @@ public class EtcdRegistry implements Registry {
 
     // 本机注册的节点 key 集合（用于维护续期）
     private final Set<String> localRegisterNodeKeySet = new HashSet<>();
+
+    private RegistryServiceCache serviceCache = new RegistryServiceCache();
 
     @Override
     public void init(RegistryConfig config) {
@@ -72,16 +75,25 @@ public class EtcdRegistry implements Registry {
 
     @Override
     public List<ServiceMetaInfo> serviceDiscovery(String serviceKey) {
+        // 从本地缓存获取
+        List<ServiceMetaInfo> cachedServiceMetaInfoList = serviceCache.readCache(serviceKey);
+        if (CollectionUtil.isNotEmpty(cachedServiceMetaInfoList)) {
+            return cachedServiceMetaInfoList;
+        }
+        // 如果本地缓存没有，再去注册中心
         String searchPrefix = ETCD_ROOT_PATH + serviceKey + "/";
         try {
             GetOption getOption = GetOption.builder().isPrefix(true).build();
             List<KeyValue> kvs = kvClient.get(ByteSequence.from(searchPrefix, StandardCharsets.UTF_8), getOption).get().getKvs();
-            return kvs.stream()
+            List<ServiceMetaInfo> serviceMetaInfoList = kvs.stream()
                     .map(keyValue -> {
                         String value = keyValue.getValue().toString(StandardCharsets.UTF_8);
                         return JSONUtil.toBean(value, ServiceMetaInfo.class);
                     })
                     .collect(Collectors.toList());
+            // 写入缓存
+            serviceCache.writeCache(serviceKey, serviceMetaInfoList);
+            return serviceMetaInfoList;
         } catch (Exception e) {
             throw new RuntimeException("获取服务列表失败", e);
         }
