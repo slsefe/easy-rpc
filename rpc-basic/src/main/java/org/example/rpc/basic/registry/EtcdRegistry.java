@@ -89,6 +89,11 @@ public class EtcdRegistry implements Registry {
 
     @Override
     public void destroy() {
+        // 节点下线
+        for (String key : localRegisterNodeKeySet) {
+            kvClient.delete(ByteSequence.from(key, StandardCharsets.UTF_8));
+        }
+        // 释放资源
         if (kvClient != null) {
             kvClient.close();
         }
