@@ -2,6 +2,7 @@ package org.example.rpc.basic.registry;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ConcurrentHashSet;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
 import cn.hutool.json.JSONUtil;
@@ -10,8 +11,10 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.Lease;
+import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
+import io.etcd.jetcd.watch.WatchEvent;
 import org.example.rpc.basic.config.RegistryConfig;
 import org.example.rpc.basic.model.ServiceMetaInfo;
 
@@ -19,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -32,6 +36,10 @@ public class EtcdRegistry implements Registry {
     private final Set<String> localRegisterNodeKeySet = new HashSet<>();
 
     private RegistryServiceCache serviceCache = new RegistryServiceCache();
+
+    // 正在监听的 key 集合
+    private final Set<String> watchingKeySet = new ConcurrentHashSet<>();
+
 
     @Override
     public void init(RegistryConfig config) {
@@ -87,6 +95,9 @@ public class EtcdRegistry implements Registry {
             List<KeyValue> kvs = kvClient.get(ByteSequence.from(searchPrefix, StandardCharsets.UTF_8), getOption).get().getKvs();
             List<ServiceMetaInfo> serviceMetaInfoList = kvs.stream()
                     .map(keyValue -> {
+                        String key = keyValue.getKey().toString(StandardCharsets.UTF_8);
+                        // 监听key
+                        watch(key);
                         String value = keyValue.getValue().toString(StandardCharsets.UTF_8);
                         return JSONUtil.toBean(value, ServiceMetaInfo.class);
                     })
@@ -150,6 +161,22 @@ public class EtcdRegistry implements Registry {
         CronUtil.start();
     }
 
+    @Override
+    public void watch(String serviceNodeKey) {
+        Watch watchClient = client.getWatchClient();
+        // 如果之前未被监听，则开启监听，即对于同一个key，只监听一次
+        boolean newWatch = watchingKeySet.add(serviceNodeKey);
+        if (newWatch) {
+            watchClient.watch(ByteSequence.from(serviceNodeKey, StandardCharsets.UTF_8), response -> {
+                for (WatchEvent event : response.getEvents()) {
+                    // 如果监听的key，出现了删除事件，则清理对应key的服务注册缓存
+                    if (Objects.requireNonNull(event.getEventType()) == WatchEvent.EventType.DELETE) {
+                        serviceCache.clearCache(serviceNodeKey);
+                    }
+                }
+            });
+        }
+    }
 
     private static String getServiceKey(ServiceMetaInfo serviceMetaInfo) {
         return ETCD_ROOT_PATH + serviceMetaInfo.getServiceNodeKey();
