@@ -3,6 +3,7 @@ package org.example.rpc.basic.loadbalancer;
 import org.example.rpc.basic.model.ServiceMetaInfo;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,7 +14,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
     private final AtomicInteger index = new AtomicInteger(0);
 
     @Override
-    public ServiceMetaInfo select(List<ServiceMetaInfo> serviceMetaInfoList) {
+    public ServiceMetaInfo select(Map<String, Object> requestParams, List<ServiceMetaInfo> serviceMetaInfoList) {
         if (serviceMetaInfoList == null || serviceMetaInfoList.isEmpty()) {
             return null;
         }
