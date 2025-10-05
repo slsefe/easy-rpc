@@ -24,6 +24,16 @@
     - 从服务代理工厂获取动态代理对象
     - 调用动态代理对象的方法
 
+## 框架核心功能
+
+- 基于动态代理和Vert.x实现的RPC
+- 应用配置中心
+- 提供了etcd服务注册中心，支持自定义注册中心
+- 提供了JDK原生、Json、Kryo、Hessian序列化器，支持通过配置指定序列化器，也支持自定义序列化器
+- 提供了轮询、随机、一致性哈希负载均衡器，支持通过配置指定负载均衡器，也支持自定义负载均衡器
+- 提供了不重试、固定间隔重试机制，支持通过配置指定重试机制，也支持自定义重试机制
+- 提供了FailBack、FailFast、FailOver、FailSafe容错机制，支持通过配置指定容错机制，也支持自定义容错机制
+
 ## 流程
 
 1. 启动服务提供者，将服务注册到注册中心（ServiceProviderApplication类）
@@ -44,3 +54,45 @@
 先使用服务提供者本地作为服务注册中心，存储服务注册信息，key为服务名称，value为服务的实现类。
 
 如何调用：根据服务名称获取实现类，通过反射进行方法调用。
+
+使用etcd作为注册中心。
+
+#### etcd
+
+下载安装
+```shell
+brew update
+brew install etcd
+etcd --version
+```
+启动
+```shell
+etcd
+```
+
+#### etcd-keeper 
+
+可视化工具: https://github.com/evildecay/etcdkeeper/
+
+安装
+```shell
+git clone
+cd 
+build.sh release.sh
+```
+启动
+```shell
+./etcdkeeper -p 8081
+```
+
+#### etcd java客户端
+
+etcd java 客户端：https://github.com/etcd-io/jetcd
+
+### 负载均衡器
+
+### 序列化器
+
+### 重试
+
+### 容错
