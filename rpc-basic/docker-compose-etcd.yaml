@@ -1,0 +1,23 @@
+# docker-compose.yaml
+version: '1.0'
+services:
+  etcd:
+    image: gcr.io/etcd-development/etcd:v3.5.15
+    command: /usr/local/bin/etcd --data-dir=/etcd-data --listen-client-urls=http://0.0.0.0:2379 --advertise-client-urls=http://localhost:2379
+    ports:
+      - 2379:2379
+      - 2380:2380
+    networks:
+      - etcd_network
+  etcdkeeper:
+    image: evildecay/etcdkeeper:v0.7.6
+    environment:
+      - ETCD_ENDPOINTS=etcd:2379
+    ports:
+      - 8081:8080
+    depends_on:
+      - etcd
+    networks:
+      - etcd_network
+networks:
+  etcd_network:
