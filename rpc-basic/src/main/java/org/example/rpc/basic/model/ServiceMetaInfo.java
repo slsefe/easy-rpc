@@ -14,12 +14,14 @@ public class ServiceMetaInfo {
 
     private String serviceName;
 
+    @Builder.Default
     private String serviceVersion = "1.0";
 
     private String serviceHost;
 
     private Integer servicePort;
 
+    @Builder.Default
     private String serviceGroup = "default";
 
     public ServiceMetaInfo(String serviceName) {
