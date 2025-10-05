@@ -1,0 +1,2 @@
+no=org.example.rpc.basic.fault.retrying.NoRetryStrategy
+fixedInterval=org.example.rpc.basic.fault.retrying.FixedIntervalRetryStrategy

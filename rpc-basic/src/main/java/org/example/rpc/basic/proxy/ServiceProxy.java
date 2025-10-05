@@ -5,6 +5,8 @@ import cn.hutool.http.HttpResponse;
 import org.example.rpc.basic.RpcApplication;
 import org.example.rpc.basic.config.RegistryConfig;
 import org.example.rpc.basic.config.RpcConfig;
+import org.example.rpc.basic.fault.retrying.RetryStrategy;
+import org.example.rpc.basic.fault.retrying.RetryStrategyFactory;
 import org.example.rpc.basic.loadbalancer.LoadBalancer;
 import org.example.rpc.basic.loadbalancer.LoadBalancerFactory;
 import org.example.rpc.basic.model.RpcRequest;
@@ -60,14 +62,18 @@ public class ServiceProxy implements InvocationHandler {
             requestParams.put("methodName", method.getName());
             ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(requestParams, serviceMetaInfos);
 
-            // 发送请求
-            byte[] responseBodyBytes;
-            try (HttpResponse httpResponse = HttpRequest.post(selectedServiceMetaInfo.getServiceAddress())
-                    .body(requestBodyBytes)
-                    .execute()) {
-                responseBodyBytes = httpResponse.bodyBytes();
-            }
-            RpcResponse rpcResponse = serializer.deserialize(responseBodyBytes, RpcResponse.class);
+            // 使用重试机制，发送请求
+            RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
+            RpcResponse rpcResponse = retryStrategy.doRetry(() -> {
+                byte[] responseBodyBytes;
+                try (HttpResponse httpResponse = HttpRequest.post(selectedServiceMetaInfo.getServiceAddress())
+                        .body(requestBodyBytes)
+                        .execute()) {
+                    responseBodyBytes = httpResponse.bodyBytes();
+                }
+                return serializer.deserialize(responseBodyBytes, RpcResponse.class);
+            });
+
             return rpcResponse.getData();
         } catch (Exception e) {
             e.printStackTrace();
