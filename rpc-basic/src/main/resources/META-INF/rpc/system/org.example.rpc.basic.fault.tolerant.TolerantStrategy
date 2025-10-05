@@ -1,0 +1,4 @@
+failBack=org.example.rpc.basic.fault.tolerant.FailBackTolerantStrategy
+failFast=org.example.rpc.basic.fault.tolerant.FailFastTolerantStrategy
+failOver=org.example.rpc.basic.fault.tolerant.FailOverTolerantStrategy
+failSafe=org.example.rpc.basic.fault.tolerant.FailSafeTolerantStrategy
